@@ -1,0 +1,24 @@
+# Byte-compiled / optimized / DLL files (Python's internal junk)
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment (NEVER commit this, it's huge and specific to your PC)
+.venv/
+env/
+venv/
+ENV/
+
+# Distribution / packaging (files created when you build the library)
+dist/
+build/
+*.egg-info/
+
+# Testing and Caches
+.pytest_cache/
+.mypy_cache/
+.coverage
+
+# OS generated files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,42 @@
+[build-system]
+# Tools to build package: setuptools
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+# Project details
+[project]
+name = "pathos-ai"
+version = "0.1.0"
+description = "A modular AI logic library for pathfinding, games, and optimization."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+    { name = "Dario Alfonso Urrutia", email = "alfonsodario54@gmail.com"}
+]
+
+
+# These are the "Core" requirements. 
+# Anyone who uses Pathos AI MUST have these.
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0"
+]
+
+
+[project.optional-dependencies]
+# These are only for YOU (the developer). 
+# A user who just wants to use the AI doesn't need to install 'pytest' or 'black'.
+dev = [
+    "pytest>=7.0",
+    "black>=23.0",
+    "mypy>=1.0",
+    "commitizen>=3.0"
+]
+
+[tool.commitizen]
+# Configuration for the commit tool so it knows how to handle our versioning.
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+
+
