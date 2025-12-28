@@ -64,6 +64,13 @@ class CostSensitive(SearchDomain[S, A], Protocol[S, A]):
         Returns the cost of taking action in state to reach next_state.
         """
         ...
+
+@runtime_checkable
+class HasInitialState(Protocol[S]):
+    """
+    A problem now may have an initial state. This class confirms we are using it correctly.
+    """
+    initial_state: S
     
 
 # --- 3. The mixins (Helper classes) ---
