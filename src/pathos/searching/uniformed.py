@@ -25,5 +25,32 @@ def reconstruct_path(node: Node[S, A]) -> List[S]:
         current = current.parent
     
     return list(reversed(path))
+
+def bfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
+    """
+    Breadth-First Search.
+    Guaranteed shortest path for unweighted problems.
+    """
+    # 1. Access the property we added to the Protocol
+    start_node = Node(state=problem.initial_state)
+    
+    if problem.is_goal(start_node.state):
+        return start_node
+    
+    # 2. FIFO Queue
+    frontier = deque([start_node])
+    explored: Set[S] = {start_node.state}
+
+    while frontier:
+        node = frontier.popleft() # <--- FIFO
+
+        for child in node.expand(problem):
+            if child.state not in explored:
+                if problem.is_goal(child.state):
+                    return child
+                explored.add(child.state)
+                frontier.append(child)
+    return None
+
     
 
