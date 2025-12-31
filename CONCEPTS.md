@@ -23,3 +23,20 @@ A **Node** is a data structure used by the Search Algorithm to keep track of its
 > **Why the difference?**
 > In a search graph, you might reach the *same state* via multiple *different paths*.
 > The State is the same, but the Nodes are different (because they have different parents and different costs).
+
+
+## 🔍 Concept: The Frontier (Stack vs. Queue)
+
+When the AI is exploring, it keeps a list of "places to visit next." This list is called the **Frontier**.
+
+### 1. Breadth-First Search (Queue)
+* **Structure:** First-In, First-Out (FIFO).
+* **Behavior:** Like a ripple in a pond. It processes layer 1, then layer 2, then layer 3.
+* **Pros:** Guaranteed to find the **shortest** path (optimality).
+* **Cons:** Uses massive amounts of memory (RAM) because the frontier gets very wide.
+
+### 2. Depth-First Search (Stack)
+* **Structure:** Last-In, First-Out (LIFO).
+* **Behavior:** Like a maze runner keeping their hand on the left wall. It runs to a dead end, then backtracks.
+* **Pros:** Uses very little memory.
+* **Cons:** Might find a path that is 1000 steps long when the goal was just 1 step to the right. Not optimal.
