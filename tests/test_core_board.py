@@ -5,10 +5,16 @@ from pathos.core import Node, SearchDomain, GoalOriented, CostSensitive
 # A simple grid 8x8
 class Grid(GoalOriented[tuple[int, int], str], CostSensitive[tuple[int, int], str]):
     # A simple 10x10 grid to have a labyrinth, moving it can cost more than 1.0 per step.
-    def __init__(self, rows: int = 10, cols: int = 10, cost: float = 1.0):
+    def __init__(self, rows: int = 10, cols: int = 10, initial_state = (1, 1),cost: float = 1.0):
         self.rows = rows
         self.cols = cols
+        self._initial_state = initial_state
         self.cost = cost
+
+
+    @property
+    def initial_state(self) -> tuple[int, int]:
+        return self._initial_state
 
     def actions(self, state: tuple[int, int]):
         # the available movements are up, down, left, right
@@ -83,11 +89,15 @@ class Grid(GoalOriented[tuple[int, int], str], CostSensitive[tuple[int, int], st
         :return: The cost of taking the action
         """
         return self.cost
+
+
+
      
 def test_grid_initialization():
     # Test that expand and initialize gets correct nodes
     problem = Grid(cost = 2.0)
-    root = Node(state = (1, 1))
+    assert problem.initial_state == (1, 1)
+    root = Node(state = problem.initial_state)
 
     children = root.expand(problem)
 
