@@ -8,10 +8,14 @@ from pathos.core import Node, SearchDomain, GoalOriented
 # We create a fake problem to test the Node.
 # A simple "Number Line" from 0 to 10 by default: You can step Left (-1) or Right (+1).
 class NumberLine(GoalOriented[int, str]):
-    def __init__(self, leftBound: int = 0, rightBound: int = 10):
+    def __init__(self, initial_state : int = 0, leftBound: int = 0, rightBound: int = 10):
         self.leftBound = leftBound
         self.rightBound = rightBound
+        self._initial_state = initial_state
         
+    @property
+    def initial_state(self) -> int:
+        return self._initial_state
     
     def actions(self, state: int):
         leftBound, rightBound = self.leftBound, self.rightBound
@@ -48,25 +52,25 @@ def test_node_initialization():
 
 def test_node_expansion():
     """Test that expand() generates correct children."""
-    problem = NumberLine()
-    root = Node(state=5)
+    problem = NumberLine(initial_state=1)
+    root = Node(state=problem.initial_state)
     
     children = root.expand(problem)
     
-    # We expect 2 children: 4 and 6
+    # We expect 2 children: 0 and 2
     assert len(children) == 2
     
-    # Check Child 1 (Action +1 -> State 6)
+    # Check Child 1 (Action -1 -> State 0)
     child_up = children[0]
-    assert child_up.state == 4
+    assert child_up.state == 0
     assert child_up.parent == root
     assert child_up.action == "-1"
     assert child_up.depth == 1
     assert child_up.path_cost == 1.0  # Default cost
-    
-    # Check Child 2 (Action -1 -> State 4)
+
+    # Check Child 2 (Action +1 -> State 2)
     child_down = children[1]
-    assert child_down.state == 6
+    assert child_down.state == 2
     assert child_down.depth == 1
 
 def test_node_comparison():
