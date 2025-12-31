@@ -31,6 +31,14 @@ class SearchDomain(Protocol[S, A]):
     The absolute minimum requirement to be a 'Problem' in Pathos.
     You must define how the world looks (actions) and how it changes (result).
     """
+
+    @property
+    def initial_state(self) -> S:
+        """
+        The initial state of the problem.
+        """
+        ...
+    
     def actions(self, state: S) -> Iterable[A]:
         """
         Returns a list of valid actions available in this state.
@@ -64,6 +72,13 @@ class CostSensitive(SearchDomain[S, A], Protocol[S, A]):
         Returns the cost of taking action in state to reach next_state.
         """
         ...
+
+@runtime_checkable
+class HasInitialState(Protocol[S]):
+    """
+    A problem now may have an initial state. This class confirms we are using it correctly.
+    """
+    initial_state: S
     
 
 # --- 3. The mixins (Helper classes) ---
