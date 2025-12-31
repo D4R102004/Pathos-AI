@@ -52,5 +52,31 @@ def bfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
                 frontier.append(child)
     return None
 
+def dfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
+    """
+    Depth-First Search.
+    Not guaranteed to find the shortest path. Memory efficient
+    """
+    start_node = Node(state=problem.initial_state)
     
+    if problem.is_goal(start_node.state):
+        return start_node
+    
+    # LIFO Stack
+    frontier = [start_node]
+    explored: Set[S] = set()  # START EMPTY
 
+    while frontier:
+        node = frontier.pop()
+
+        if problem.is_goal(node.state):
+            return node
+
+        if node.state not in explored:
+            explored.add(node.state)
+            
+            # Add children
+            for child in node.expand(problem):
+                if child.state not in explored:
+                    frontier.append(child)
+    return None
