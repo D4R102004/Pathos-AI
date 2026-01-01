@@ -51,16 +51,6 @@ class SearchDomain(Protocol[S, A]):
         """
         ...
 
-@runtime_checkable
-class GoalOriented(SearchDomain[S, A], Protocol[S, A]):
-    """
-    A problem that has a specific goal state to reach.
-    """
-    def is_goal(self, state: S) -> bool:
-        """
-        Returns True if the given state is a goal state.
-        """
-        ...
 
 @runtime_checkable
 class CostSensitive(SearchDomain[S, A], Protocol[S, A]):
@@ -74,12 +64,16 @@ class CostSensitive(SearchDomain[S, A], Protocol[S, A]):
         ...
 
 @runtime_checkable
-class HasInitialState(Protocol[S]):
+class GoalOriented(SearchDomain[S, A], Protocol[S, A]):
     """
-    A problem now may have an initial state. This class confirms we are using it correctly.
+    A problem that has a specific goal state to reach.
     """
-    initial_state: S
-    
+    def is_goal(self, state: S) -> bool:
+        """
+        Returns True if the given state is a goal state.
+        """
+        ...
+
 
 # --- 3. The mixins (Helper classes) ---
 

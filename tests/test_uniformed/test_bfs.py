@@ -4,11 +4,11 @@ Unit tests for bfs algorithm
 
 import pytest
 from pathos.searching.uniformed import bfs, reconstruct_path
-from test_core_board import Grid
+from pathos.examples.maze import Maze
 
 def test_bfs_simple_path():
-    """Test BFS on a simple grid."""
-    problem = Grid(rows=5, cols=5, initial_state=(1, 1))
+    """Test BFS on a simple Maze."""
+    problem = Maze(length=5, width=5, start=(1, 1))
     goal_state = (3, 3)
 
     # Override the is_goal method for this test
