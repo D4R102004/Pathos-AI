@@ -4,7 +4,7 @@ Unit tests for dfs algorithm
 
 import pytest
 from pathos.searching.uniformed import dfs, reconstruct_path
-from test_core import NumberLine
+from pathos.examples.number_line import NumberLine
 
 def test_dfs_simple_path():
     """Test DFS on a simple number line."""
