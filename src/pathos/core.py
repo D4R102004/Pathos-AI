@@ -74,6 +74,12 @@ class GoalOriented(SearchDomain[S, A], Protocol[S, A]):
         """
         ...
 
+@runtime_checkable
+class GoalCostOriented(GoalOriented[S, A], CostSensitive[S, A], Protocol[S, A]):
+    """
+    A problem that is both goal-oriented and cost-sensitive.
+    """
+    pass
 
 # --- 3. The mixins (Helper classes) ---
 

@@ -207,6 +207,59 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
             True if the state matches the goal location.
         """
         return state == self._goal_state
+        # --- Representation / Visualization ---
+
+    def __repr__(self) -> str:
+        """
+        Developer-friendly string representation of the maze.
+
+        Shows core configuration without rendering the full grid.
+        Useful for debugging and logging.
+        """
+        return (
+            f"Maze(length={self.length}, width={self.width}, "
+            f"start={self._initial_state}, goal={self._goal_state}, "
+            f"walls={len(self.walls)})"
+        )
+
+    def pretty_print(self, path: Set[State] | None = None) -> str:
+        """
+        Return a human-friendly ASCII visualization of the maze.
+
+        Parameters
+        ----------
+        path : Optional[Set[State]]
+            States belonging to a solution path.
+            These will be rendered with '*'.
+
+        Returns
+        -------
+        str
+            Multiline string representing the maze.
+        """
+        path = path or set()
+
+        lines: list[str] = []
+
+        for x in range(self.length):
+            row: list[str] = []
+            for y in range(self.width):
+                cell = (x, y)
+
+                if cell == self._initial_state:
+                    row.append("S")
+                elif cell == self._goal_state:
+                    row.append("G")
+                elif cell in path:
+                    row.append("*")
+                elif cell in self.walls:
+                    row.append("█")
+                else:
+                    row.append("·")
+
+            lines.append(" ".join(row))
+
+        return "\n".join(lines)
 
 def manhattan_distance(a: State, b: State) -> float:
     """
@@ -237,7 +290,14 @@ def manhattan_distance(a: State, b: State) -> float:
     """
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
-    
+def manhattan_heuristic(goal: State):
+    """
+    Create a Manhattan-distance heuristic bound to a specific goal.
+    """
+    def h(state: State) -> float:
+        return abs(state[0] - goal[0]) + abs(state[1] - goal[1])
+    return h
+
     
 
         
