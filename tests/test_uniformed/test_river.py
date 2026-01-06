@@ -2,8 +2,6 @@
 Simple test for the river problem in src/examples/river.py
 """
 
-
-import pytest
 from pathos.examples.river import RiverPuzzle
 from pathos.searching.uniformed import bfs, dfs, reconstruct_path
 
@@ -23,8 +21,11 @@ def test_river_solution():
     bfs_path = reconstruct_path(bfs_result_node)
     dfs_path = reconstruct_path(dfs_result_node)
 
-
     # The expected minimum number of steps to solve the puzzle is 7
     expected_min_steps = 7
-    assert len(bfs_path) == expected_min_steps, f"Expected BFS path length {expected_min_steps}, got {len(bfs_path)}."
-    assert len(dfs_path) >= expected_min_steps, f"Expected DFS path length at least {expected_min_steps}, got {len(dfs_path)}."
+    assert (
+        len(bfs_path) == expected_min_steps
+    ), f"Expected BFS path length {expected_min_steps}, got {len(bfs_path)}."
+    assert (
+        len(dfs_path) >= expected_min_steps
+    ), f"Expected DFS path length at least {expected_min_steps}, got {len(dfs_path)}."

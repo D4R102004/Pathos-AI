@@ -7,11 +7,13 @@ BFS and DFS implementations.
 """
 
 from collections import deque
-from typing import Optional, List, Set, TypeVar
-from pathos.core import Node, SearchDomain, GoalOriented
+from typing import List, Optional, Set, TypeVar
+
+from pathos.core import GoalOriented, Node
 
 S = TypeVar("S")  # State
 A = TypeVar("A")  # Action
+
 
 def reconstruct_path(node: Node[S, A]) -> List[S]:
     """
@@ -23,8 +25,9 @@ def reconstruct_path(node: Node[S, A]) -> List[S]:
         if current.action is not None:
             path.append(current.action)
         current = current.parent
-    
+
     return list(reversed(path))
+
 
 def bfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
     """
@@ -33,16 +36,16 @@ def bfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
     """
     # 1. Access the property we added to the Protocol
     start_node = Node(state=problem.initial_state)
-    
+
     if problem.is_goal(start_node.state):
         return start_node
-    
+
     # 2. FIFO Queue
     frontier = deque([start_node])
     explored: Set[S] = {start_node.state}
 
     while frontier:
-        node = frontier.popleft() # <--- FIFO
+        node = frontier.popleft()  # <--- FIFO
 
         for child in node.expand(problem):
             if child.state not in explored:
@@ -52,16 +55,17 @@ def bfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
                 frontier.append(child)
     return None
 
+
 def dfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
     """
     Depth-First Search.
     Not guaranteed to find the shortest path. Memory efficient
     """
     start_node = Node(state=problem.initial_state)
-    
+
     if problem.is_goal(start_node.state):
         return start_node
-    
+
     # LIFO Stack
     frontier = [start_node]
     explored: Set[S] = set()  # START EMPTY
@@ -74,7 +78,7 @@ def dfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
 
         if node.state not in explored:
             explored.add(node.state)
-            
+
             # Add children
             for child in node.expand(problem):
                 if child.state not in explored:

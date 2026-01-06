@@ -31,10 +31,11 @@ from pathos.core import GoalOriented
 
 State = Tuple[int, int, int, int]  # (Farmer, Wolf, Goat, Cabbage)
 
+
 class RiverPuzzle(GoalOriented[State, str]):
 
     # --- Initial State ---
-    
+
     @property
     def initial_state(self) -> State:
         """
@@ -43,7 +44,7 @@ class RiverPuzzle(GoalOriented[State, str]):
         All entities start on the left bank.
         """
         return (0, 0, 0, 0)
-    
+
         # --- State Validity Check ---
 
     def is_valid(self, state: State) -> bool:
@@ -69,13 +70,13 @@ class RiverPuzzle(GoalOriented[State, str]):
         # Wolf eats Goat if Farmer is not present
         if wolf == goat and farmer != wolf:
             return False
-        
+
         # Goat eats Cabbage if Farmer is not present
         if goat == cabbage and farmer != goat:
             return False
-        
+
         return True
-    
+
     # Action Generator
 
     def actions(self, state: State) -> List[str]:
@@ -118,8 +119,6 @@ class RiverPuzzle(GoalOriented[State, str]):
                 possible_moves.append("Take Cabbage")
 
         return possible_moves
-    
-
 
     def result(self, state: State, action: str) -> State:
         """
@@ -156,8 +155,6 @@ class RiverPuzzle(GoalOriented[State, str]):
 
         # Defensive fallback (should never be reached)
         return state
-
-
 
     def is_goal(self, state):
         return state == (1, 1, 1, 1)

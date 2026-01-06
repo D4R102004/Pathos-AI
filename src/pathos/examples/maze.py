@@ -46,13 +46,14 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
     by implementing the CostSensitive protocol.
     """
 
-    def __init__(self,
-                 length: int = 10,
-                 width: int = 10,
-                 walls: Set[State] = set(),
-                 start: State = (0, 0),
-                 goal: State = (9, 9)
-                 ):
+    def __init__(
+        self,
+        length: int = 10,
+        width: int = 10,
+        walls: Set[State] = set(),
+        start: State = (0, 0),
+        goal: State = (9, 9),
+    ):
         """
         Initialize the maze domain.
 
@@ -87,7 +88,6 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
         Required by the SearchDomain / GoalOriented protocol.
         """
         return self._initial_state
-    
 
     # --- Action Generator ---
 
@@ -113,9 +113,9 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
 
         # Candidate moves and their resulting coordinates
         candidates = [
-            ("UP",    (x - 1, y)),
-            ("DOWN",  (x + 1, y)),
-            ("LEFT",  (x, y - 1)),
+            ("UP", (x - 1, y)),
+            ("DOWN", (x + 1, y)),
+            ("LEFT", (x, y - 1)),
             ("RIGHT", (x, y + 1)),
         ]
 
@@ -189,7 +189,7 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
             Cost of the action.
         """
         return 1.0
-    
+
     # --- Goal State ---
 
     def is_goal(self, state: State) -> bool:
@@ -261,6 +261,7 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
 
         return "\n".join(lines)
 
+
 def manhattan_distance(a: State, b: State) -> float:
     """
     Manhattan distance heuristic.
@@ -290,14 +291,13 @@ def manhattan_distance(a: State, b: State) -> float:
     """
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
+
 def manhattan_heuristic(goal: State):
     """
     Create a Manhattan-distance heuristic bound to a specific goal.
     """
+
     def h(state: State) -> float:
         return abs(state[0] - goal[0]) + abs(state[1] - goal[1])
+
     return h
-
-    
-
-        
