@@ -5,6 +5,7 @@ it's initial state is equal to its goal statw
 
 from pathos.core import GoalOriented
 
+
 class TrivialProblem(GoalOriented[int, None]):
     """
     A minimal Goal-Oriented problem
