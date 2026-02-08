@@ -15,18 +15,18 @@ S = TypeVar("S")  # State
 A = TypeVar("A")  # Action
 
 
-def reconstruct_path(node: Node[S, A]) -> List[S]:
+def reconstruct_path(node: Node[S, A]) -> List[A]:
     """
     Trace back from goal to root to find the action sequence.
     """
-    path = []
+    path: List[A] = []
     current = node
     while current.parent is not None:
         if current.action is not None:
             path.append(current.action)
         current = current.parent
 
-    return list(reversed(path))
+    return path[::-1]
 
 
 def bfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
@@ -35,7 +35,7 @@ def bfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
     Guaranteed shortest path for unweighted problems.
     """
     # 1. Access the property we added to the Protocol
-    start_node = Node(state=problem.initial_state)
+    start_node: Node[S, A] = Node(state=problem.initial_state)
 
     if problem.is_goal(start_node.state):
         return start_node
@@ -61,7 +61,7 @@ def dfs(problem: GoalOriented[S, A]) -> Optional[Node[S, A]]:
     Depth-First Search.
     Not guaranteed to find the shortest path. Memory efficient
     """
-    start_node = Node(state=problem.initial_state)
+    start_node: Node[S, A] = Node(state=problem.initial_state)
 
     if problem.is_goal(start_node.state):
         return start_node

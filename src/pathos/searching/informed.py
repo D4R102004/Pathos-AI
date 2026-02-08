@@ -72,14 +72,14 @@ def astar(
     """
 
     # --- 1. Create the root node ---
-    start_node = Node(state=problem.initial_state)
+    start_node: Node[S, A] = Node(state=problem.initial_state)
 
     # --- 2. Priority queue (min-heap) ---
     # Stores tuples of the form:
     #   (f_score, node)
     #
     # Python's heapq always pops the tuple with the smallest first element.
-    frontier = []
+    frontier: list[tuple[float, Node[S, A]]] = []
 
     # Compute initial f-score
     initial_h = heuristic(problem.initial_state)
