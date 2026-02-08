@@ -124,10 +124,7 @@ class Node(Generic[S, A]):
         self.path_cost = path_cost
 
         # Calculate depth automatically:
-        if parent:
-            self.depth = parent.depth + 1
-        else:
-            self.depth = 0
+        self.depth: int = parent.depth + 1 if parent else 0
 
     def child(self, state: S, action: A, step_cost: float) -> "Node[S, A]":
         """
@@ -155,3 +152,19 @@ class Node(Generic[S, A]):
         Note: In A*, we will wrap this node or compare f-score.
         """
         return self.path_cost < other.path_cost
+
+    def expand(self, problem: SearchDomain[S, A]) -> list["Node[S, A]"]:
+        """Generate child nodes by applying all valid actions."""
+        children = []
+        for action in problem.actions(self.state):
+            next_state = problem.result(self.state, action)
+
+            # Auto-detect if problem has step_cost
+            if isinstance(problem, CostSensitive):
+                cost = problem.step_cost(self.state, action, next_state)
+            else:
+                cost = 1.0
+
+            children.append(self.child(next_state, action, cost))
+
+        return children

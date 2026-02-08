@@ -1,6 +1,6 @@
 """
 A trivial Goal-Oriented problem.
-it's initial state is equal to its goal statw
+it's initial state is equal to its goal state
 """
 
 from pathos.core import GoalOriented
