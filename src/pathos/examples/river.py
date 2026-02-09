@@ -33,7 +33,6 @@ State = Tuple[int, int, int, int]  # (Farmer, Wolf, Goat, Cabbage)
 
 
 class RiverPuzzle(GoalOriented[State, str]):
-
     # --- Initial State ---
 
     @property

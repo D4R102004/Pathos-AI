@@ -36,7 +36,6 @@ class NumberLine(GoalOriented[int, str]):
         return actions
 
     def result(self, state: int, action: str) -> int:
-
         if action == "+1":
             return state + 1
         elif action == "-1":

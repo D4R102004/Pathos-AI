@@ -2,8 +2,8 @@
 Unit tests for the Core Architecture (Issue #2).
 """
 
-from pathos.core import Node
-from pathos.examples.number_line import NumberLine
+from pathos.core import Node  # type: ignore
+from pathos.examples.number_line import NumberLine  # type: ignore
 
 # --- 2. The Tests ---
 

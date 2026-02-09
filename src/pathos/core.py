@@ -335,7 +335,7 @@ def extract_state_path(node: Node[S, A]) -> List[S]:
     >>> # states = [(0,0), (0,1), (1,1), (2,1), (2,2)]
     """
     states: List[S] = []
-    current = node
+    current: Optional[Node[S, A]] = node
 
     while current is not None:
         states.append(current.state)
