@@ -13,6 +13,7 @@ It demonstrates:
 - A Goal-Oriented problem
 - A Cost-Sensitive problem
 - A clean separation between domain logic and search algorithms
+- SOLID principles: Maze handles domain logic, MazeRenderer handles visualization
 """
 
 from typing import List, Tuple, Set
@@ -44,6 +45,9 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
     Each move has a uniform cost of 1.0, but the class
     explicitly supports weighted search algorithms
     by implementing the CostSensitive protocol.
+
+    This class follows the Single Responsibility Principle:
+    it handles domain logic only. For visualization, see MazeRenderer.
     """
 
     def __init__(
@@ -207,7 +211,8 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
             True if the state matches the goal location.
         """
         return state == self._goal_state
-        # --- Representation / Visualization ---
+
+    # --- Representation ---
 
     def __repr__(self) -> str:
         """
@@ -222,12 +227,33 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
             f"walls={len(self.walls)})"
         )
 
-    def pretty_print(self, path: Set[State] | None = None) -> str:
+
+# --- Visualization (Separate Responsibility) ---
+
+
+class MazeRenderer:
+    """
+    Handles ASCII visualization of Maze problems.
+
+    This class is separated from Maze to follow the Single Responsibility Principle:
+    - Maze class: Domain logic (state transitions, goal checking, costs)
+    - MazeRenderer class: Presentation logic (ASCII visualization)
+
+    This separation means:
+    - Maze can change its domain logic without affecting visualization
+    - Renderer can change display format without touching domain logic
+    - Easy to add new renderers (HTML, GUI) without modifying Maze
+    """
+
+    @staticmethod
+    def render(maze: Maze, path: Set[State] | None = None) -> str:
         """
         Return a human-friendly ASCII visualization of the maze.
 
         Parameters
         ----------
+        maze : Maze
+            The maze to visualize.
         path : Optional[Set[State]]
             States belonging to a solution path.
             These will be rendered with '*'.
@@ -236,23 +262,32 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
         -------
         str
             Multiline string representing the maze.
+
+        Example
+        -------
+        >>> maze = Maze(length=5, width=5, start=(0, 0), goal=(4, 4))
+        >>> print(MazeRenderer.render(maze))
+        S · · · ·
+        · · · · ·
+        · · · · ·
+        · · · · ·
+        · · · · G
         """
         path = path or set()
-
         lines: list[str] = []
 
-        for x in range(self.length):
+        for x in range(maze.length):
             row: list[str] = []
-            for y in range(self.width):
+            for y in range(maze.width):
                 cell = (x, y)
 
-                if cell == self._initial_state:
+                if cell == maze._initial_state:
                     row.append("S")
-                elif cell == self._goal_state:
+                elif cell == maze._goal_state:
                     row.append("G")
                 elif cell in path:
                     row.append("*")
-                elif cell in self.walls:
+                elif cell in maze.walls:
                     row.append("█")
                 else:
                     row.append("·")
@@ -260,6 +295,9 @@ class Maze(CostSensitive[State, str], GoalOriented[State, str]):
             lines.append(" ".join(row))
 
         return "\n".join(lines)
+
+
+# --- Heuristics ---
 
 
 def manhattan_distance(a: State, b: State) -> float:
@@ -295,6 +333,25 @@ def manhattan_distance(a: State, b: State) -> float:
 def manhattan_heuristic(goal: State):
     """
     Create a Manhattan-distance heuristic bound to a specific goal.
+
+    This is a factory function that returns a heuristic function
+    specialized for a particular goal state.
+
+    Parameters
+    ----------
+    goal : State
+        The goal position to calculate distances to.
+
+    Returns
+    -------
+    Callable[[State], float]
+        A heuristic function that estimates distance to the goal.
+
+    Example
+    -------
+    >>> h = manhattan_heuristic((9, 9))
+    >>> h((0, 0))  # Distance from (0,0) to (9,9)
+    18.0
     """
 
     def h(state: State) -> float:
