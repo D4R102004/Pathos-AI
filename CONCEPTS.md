@@ -101,3 +101,363 @@ In our 7×12 maze (84 cells), A* saved only 7 node expansions. But imagine:
 - **Warehouse robot**: Real-time requirement → Speed matters
 
 The percentage improvement stays similar, but the absolute savings scale dramatically.
+
+## Issue #5: Constraint Satisfaction Problems (CSP)
+
+### 🧠 Concept: What ARE Constraint Satisfaction Problems?
+
+CSPs are fundamentally DIFFERENT from search problems like BFS or A*.
+
+**Search Problems (Issues #3-4):**
+- **Goal**: Find a PATH from A to B
+- **Question**: "How do I get from Start to Goal?"
+- **Example**: Navigate a maze, find shortest route
+- **State**: Complete location (you're FULLY at position (2,3))
+
+**Constraint Satisfaction Problems (Issue #5):**
+- **Goal**: Find an ASSIGNMENT that satisfies rules
+- **Question**: "How do I assign values without breaking constraints?"
+- **Example**: Color a map, solve Sudoku, schedule exams
+- **State**: Partial assignment (some variables assigned, some not)
+
+---
+
+### 🎨 Real-World Example: The Dinner Party Problem
+
+Imagine hosting a dinner with 4 seats and 4 guests:
+- **Variables**: Seat1, Seat2, Seat3, Seat4
+- **Domain**: {Alice, Bob, Carol, David}
+- **Constraints**:
+  - Alice and Bob can't sit next to each other
+  - Carol must sit next to David
+
+**The Question**: Can you assign one person per seat such that ALL constraints are satisfied?
+
+This is a CSP!
+
+---
+
+### 🔍 CSP vs Search: The Key Difference
+
+#### **Search (Maze Navigation)**
+```
+State: Position (2, 3) ← Complete snapshot
+Actions: UP, DOWN, LEFT, RIGHT
+Goal: Reach (9, 9)
+
+Every state is COMPLETE - you're either at (2,3) or you're not.
+```
+
+#### **CSP (Map Coloring)**
+```
+State: {WA: Red, NT: ?, SA: ?, ...} ← Partial assignment
+Actions: Assign colors to regions
+Goal: All regions colored, no neighbor conflicts
+
+States are PARTIAL - you gradually fill in the assignment.
+```
+
+**Think of it like:**
+- **Search**: GPS navigation (complete positions)
+- **CSP**: Filling out a form (partial completion)
+
+---
+
+### ⚡ Why Backtracking is Better Than BFS for CSPs
+
+**The Problem with BFS:**
+
+For Australia map (7 regions, 3 colors):
+- BFS would try: 3^7 = **2,187 combinations**
+- Only checks constraints at the END
+- Wastes time exploring invalid branches
+
+**The Backtracking Advantage:**
+
+```python
+# BFS approach (blind):
+Try: {WA: Red, NT: Red, SA: Red, ...}  ← Check at end: INVALID!
+Try: {WA: Red, NT: Red, SA: Green, ...}  ← Check at end: INVALID!
+... (explores all 2,187 combos)
+
+# Backtracking approach (smart):
+Try: WA = Red ✓
+Try: NT = Red ❌ STOP! (WA is Red, neighbors conflict)
+Try: NT = Green ✓
+Try: SA = Red ❌ STOP! (WA is Red, conflict)
+Try: SA = Green ❌ STOP! (NT is Green, conflict)
+Try: SA = Blue ✓
+... (explores only ~50 assignments)
+```
+
+**Key Insight**: Backtracking checks constraints IMMEDIATELY after each assignment, pruning invalid branches early!
+
+**Result**: ~50 assignments vs 2,187 = **40x faster!** ✂️🌳
+
+---
+
+### 🎯 The MRV Heuristic: Fail-First Principle
+
+**MRV = Minimum Remaining Values**
+
+**The Idea**: Choose the variable with the FEWEST legal values remaining.
+
+**Why?** Because it's most likely to fail! And we WANT to fail early!
+
+#### **Example: Packing a Car for Vacation**
+
+**Dumb Order** (most flexible first):
+1. Pack snacks (fit anywhere) ✓
+2. Pack clothes (fit anywhere) ✓
+3. Pack sleeping bags (fit anywhere) ✓
+4. Try to fit surfboard (must go on roof) ❌ DOESN'T FIT!
+5. Now you have to unpack everything! 😫
+
+**Smart Order** (MRV - most constrained first):
+1. Try surfboard first ❌ DOESN'T FIT!
+2. Stop immediately - you need a bigger car!
+3. No wasted time packing everything else! ✅
+
+#### **CSP Example: Australia Map**
+
+```
+Assignment so far: {WA: Red, NT: Green, Q: Blue}
+
+Which variable to assign next?
+
+NSW:
+- Neighbors: Q, SA, V
+- Q is Blue (assigned)
+- SA, V not assigned yet
+- Legal values: Red, Green (2 options)
+
+SA:
+- Neighbors: WA, NT, Q, NSW, V (5 neighbors!)
+- WA is Red (assigned)
+- NT is Green (assigned)
+- Q is Blue (assigned)
+- NSW, V not assigned yet
+- Legal values: NONE! (All 3 colors taken by neighbors!)
+
+MRV chooses: SA (0 legal values)
+Result: Immediate backtrack! We detect the dead end right away!
+```
+
+**Performance Impact:**
+- Without MRV: ~200 assignments
+- With MRV: ~50 assignments
+- **4x speedup** just from smart ordering!
+
+---
+
+### 📊 Backtracking Algorithm Breakdown
+
+#### **The Three Key Components:**
+
+**1. Try (Assignment)**
+```python
+assignment[variable] = value  # Tentatively assign
+```
+
+**2. Check (Constraint Validation)**
+```python
+if csp.is_consistent(variable, value, assignment):
+    # OK! Continue exploring this path
+```
+
+**3. Undo (Backtracking)**
+```python
+del assignment[variable]  # Erase and try different value
+```
+
+#### **The Recursive Structure:**
+
+```python
+def backtrack(assignment, csp):
+    # BASE CASE: All variables assigned?
+    if len(assignment) == len(csp.variables):
+        return assignment  # SUCCESS! 🎉
+
+    # RECURSIVE CASE: Pick next variable (using MRV)
+    var = select_unassigned_variable(assignment, csp)
+
+    for value in csp.domains[var]:
+        if csp.is_consistent(var, value, assignment):
+            assignment[var] = value  # TRY
+
+            result = backtrack(assignment, csp)  # RECURSE
+
+            if result is not None:
+                return result  # Success! Bubble up!
+
+            del assignment[var]  # UNDO (backtrack)
+
+    return None  # No value worked, signal failure
+```
+
+**Visual Trace (Australia Map - Simplified):**
+```
+backtrack({})
+├─ Try WA=Red ✓
+│  ├─ backtrack({WA: Red})
+│  │  ├─ Try NT=Red ❌ (conflict!) PRUNE!
+│  │  ├─ Try NT=Green ✓
+│  │  │  ├─ backtrack({WA: Red, NT: Green})
+│  │  │  │  ├─ Try SA=Red ❌ PRUNE!
+│  │  │  │  ├─ Try SA=Green ❌ PRUNE!
+│  │  │  │  ├─ Try SA=Blue ✓
+│  │  │  │  │  └─ SUCCESS! Return solution
+```
+
+---
+
+### 🎓 CSP Implementation: The Three Parts
+
+#### **1. The Protocol (CSP Abstraction)**
+```python
+class CSP(Protocol[V, D]):
+    @property
+    def variables(self) -> List[V]:
+        """What to assign (regions, cells, seats)"""
+
+    @property
+    def domains(self) -> Dict[V, List[D]]:
+        """Possible values for each variable"""
+
+    def is_consistent(self, var, value, assignment) -> bool:
+        """Does this assignment violate constraints?"""
+```
+
+**SOLID Principle**: Dependency Inversion - solver depends on abstraction!
+
+#### **2. The Solver (Backtracking Algorithm)**
+```python
+def backtracking_search(csp: CSP) -> Optional[Assignment]:
+    """Works with ANY CSP that implements the protocol"""
+    return _backtrack({}, csp)
+```
+
+**SOLID Principle**: Open/Closed - works with infinite CSP types without modification!
+
+#### **3. The Problem (Concrete Implementation)**
+```python
+class MapColoringCSP:
+    """Implements CSP protocol for map coloring"""
+
+    def is_consistent(self, var, value, assignment):
+        neighbors = self._neighbors[var]
+        for neighbor in neighbors:
+            if neighbor in assignment:
+                if assignment[neighbor] == value:
+                    return False  # Conflict!
+        return True
+```
+
+**SOLID Principle**: Single Responsibility - defines problems, doesn't solve them!
+
+---
+
+### 📈 Performance Comparison
+
+| Problem | Variables | Domain Size | BFS (Brute Force) | Backtracking | Speedup |
+|---------|-----------|-------------|-------------------|--------------|---------|
+| 3 Regions | 3 | 3 colors | 27 combos | ~6 assignments | 4.5x |
+| Australia | 7 | 3 colors | 2,187 combos | ~50 assignments | 43x |
+| Cuba | 16 | 4 colors | 4,294,967,296 combos | ~100 assignments | 42,000,000x! |
+| Sudoku | 81 | 9 numbers | 10^81 combos | ~1,000s assignments | ∞ |
+
+**Key Takeaway**: Early constraint checking + smart ordering = exponential speedup!
+
+---
+
+### 🌍 Real-World Applications
+
+CSPs appear everywhere in computer science:
+
+**1. Scheduling**
+- Variables: Time slots
+- Domain: Activities/classes
+- Constraints: No conflicts, resource limits
+
+**2. Resource Allocation**
+- Variables: Tasks
+- Domain: Workers/machines
+- Constraints: Capacity, deadlines, dependencies
+
+**3. Compiler Optimization**
+- Variables: Variables in code
+- Domain: CPU registers
+- Constraints: Register count, variable lifetimes
+
+**4. Circuit Board Design**
+- Variables: Components
+- Domain: Board positions
+- Constraints: No overlaps, wire routing
+
+**5. Sudoku, Crosswords, Logic Puzzles**
+- Classic CSP examples!
+
+---
+
+### 💡 Key Lessons from Issue #5
+
+**1. Different Problem Classes Need Different Algorithms**
+- Search problems → BFS, DFS, A*
+- Constraint satisfaction → Backtracking with heuristics
+- Recognizing the problem type is crucial!
+
+**2. Early Pruning is Powerful**
+- Check constraints immediately
+- Don't waste time on impossible branches
+- Exponential speedup from linear work!
+
+**3. Heuristics Matter**
+- MRV: 4x speedup just from smart ordering
+- Small changes, huge impact!
+
+**4. SOLID Principles Scale**
+- Protocol-based design works for CSPs too
+- Same solver handles Australia, Cuba, Sudoku, N-Queens
+- Open/Closed Principle in action!
+
+**5. Testing Reveals Truth**
+- We thought Australia was 2-colorable → Tests proved it's not!
+- Independent verification (`is_valid_coloring`) catches errors
+- Black box testing focuses on behavior, not implementation
+
+---
+
+### 🔗 Connections to Other Concepts
+
+**Issue #3 (BFS/DFS)**:
+- Backtracking is like DFS with constraint checking
+- Both explore deeply, but CSP prunes branches
+
+**Issue #4 (A*)**:
+- A* uses heuristics to guide search (distance to goal)
+- MRV uses heuristics to order variables (fewest options)
+- Both: smart ordering → better performance
+
+**SOLID Principles (Issue #2)**:
+- CSP Protocol = abstraction (DIP)
+- MapColoringCSP = configurable (OCP)
+- Backtracking solver = reusable (SRP)
+
+---
+
+### 📚 Further Exploration
+
+**Advanced CSP Techniques** (not implemented, but worth knowing):
+
+1. **Forward Checking**: After each assignment, remove inconsistent values from neighbors' domains
+2. **Arc Consistency (AC-3)**: Propagate constraints before search starts
+3. **Least Constraining Value**: Choose values that preserve most options for neighbors
+4. **Degree Heuristic**: Tie-breaker for MRV (choose variable involved in most constraints)
+
+**These add complexity but can improve performance even more!**
+
+---
+
+### 🎯 Summary: CSPs in One Paragraph
+
+Constraint Satisfaction Problems find assignments of values to variables that satisfy all constraints. Unlike search problems that find paths through states, CSPs build up partial assignments gradually. Backtracking with constraint checking prunes invalid branches immediately, achieving exponential speedup over brute force. The MRV heuristic (fail-first principle) prioritizes constrained variables, further improving performance. This pattern appears everywhere: scheduling, resource allocation, puzzle solving, and compiler optimization. The protocol-based design allows one solver to handle infinite CSP types—demonstrating SOLID principles at scale.
